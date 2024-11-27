@@ -1,0 +1,36 @@
+
+services:
+  nestjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"  # NestJS için port
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app_network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - app_network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"  # Grafana için port
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # Varsayılan şifre
+    depends_on:
+      - prometheus
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
